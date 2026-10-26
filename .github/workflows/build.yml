@@ -1,0 +1,41 @@
+
+name: Build MEERA AI APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'MeeraAI-v2-COMPLETE.zip'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract Android project
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          unzip -o MeeraAI-v2-COMPLETE.zip -d project
+
+      - name: Build APK
+        working-directory: project
+        run: |
+          gradle --version
+          gradle assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MEERA-AI-APK
+          path: project/app/build/outputs/apk/debug/*.apk
